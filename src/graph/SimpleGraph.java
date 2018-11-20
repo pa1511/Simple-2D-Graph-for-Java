@@ -659,6 +659,17 @@ public class SimpleGraph extends JPanel {
 	 * Launches a window showing the graph. <br/> 
 	 */
 	public void display() {
+		display(500, 150, 800, 800);
+	}
+	
+	/**
+	 * Launches a window showing the graph. <br/> 
+	 * @param x window coordinate
+	 * @param y window coordinate
+	 * @param width of the window
+	 * @param height of thw window
+	 */
+	public void display(int x, int y, int width, int height) {
 		SwingUtilities.invokeLater(()->{
 			
 			try {
