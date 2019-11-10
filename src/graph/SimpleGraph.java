@@ -70,6 +70,8 @@ public class SimpleGraph extends JPanel {
 	private boolean showTicks = true;
 	private int tickSize = 8;	
 	//
+	private boolean showAxis = true;
+	//
 	private final Map<Color,List<DPoint>> points = new HashMap<>();
 	private final List<Pair<DoubleUnaryOperator, Color>> functions = new ArrayList<>();
 	private final List<IGraphShape> shapes = new ArrayList<>();
@@ -82,8 +84,8 @@ public class SimpleGraph extends JPanel {
 	private static Icon crossIcon;
 	static {
 		try {
-			checkIcon = ResourceLoader.loadImageIcon(SimpleGraph.class, "./../image/check.png",16,16);
-			crossIcon = ResourceLoader.loadImageIcon(SimpleGraph.class, "./../image/cross.png",16,16);
+			checkIcon = ResourceLoader.loadImageIcon(SimpleGraph.class, "check.png",16,16);
+			crossIcon = ResourceLoader.loadImageIcon(SimpleGraph.class, "cross.png",16,16);
 		} catch (IOException e) {
 			checkIcon = null;
 			crossIcon = null;
@@ -109,6 +111,25 @@ public class SimpleGraph extends JPanel {
 	public SimpleGraph(double maxValueX, double maxValueY) {
 		this(maxValueX,maxValueY,1.0,1.0);
 	}	
+	
+	/**
+	 * Indicate should the grid be shown
+	 * @param showGrid
+	 */
+	public void setShowGrid(boolean showGrid) {
+		this.showGrid = showGrid;
+		repaint();
+	}
+	
+	/**
+	 * Indicate should the thick on the axis be shown
+	 * @param showTicks
+	 */
+	public void setShowTicks(boolean showTicks) {
+		this.showTicks = showTicks;
+		repaint();
+	}
+	
 	
 	/**
 	 * 
@@ -142,6 +163,15 @@ public class SimpleGraph extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				showTicks = !showTicks;
+				repaint();
+			}
+		}));
+
+		JMenuItem showAxisMenuItem = popupMenu.add(new JMenuItem(new AbstractAction("Show axis") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showAxis = !showAxis;
 				repaint();
 			}
 		}));
@@ -197,12 +227,13 @@ public class SimpleGraph extends JPanel {
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 				showGridMenuItem.setIcon(showGrid ?  crossIcon : checkIcon);
 				showTicksMenuItem.setIcon(showTicks ? crossIcon : checkIcon);
+				showAxisMenuItem.setIcon(showAxis ? crossIcon : checkIcon );
 				interactiveModeMenuItem.setIcon(interactiveMode ? crossIcon : checkIcon);
 				
 				showGridMenuItem.setText(showGrid ? "Hide grid" : "Show grid");
 				showTicksMenuItem.setText(showTicks ? "Hide ticks" : "Show ticks");
+				showAxisMenuItem.setText(showAxis ? "Hide Axis" : "Show axis" );
 				interactiveModeMenuItem.setText(interactiveMode ? "Disable adding points" : "Enable adding points");
-				
 			}
 			
 			@Override
@@ -416,6 +447,13 @@ public class SimpleGraph extends JPanel {
 	}
 	
 	/**
+	 * Returns all the points on the graph
+	 */
+	public Map<Color, List<DPoint>> getPoints() {
+		return points;
+	}
+	
+	/**
 	 * Adds the given shape to the graph. <br/>
 	 * The graph <b> WILL NOT </b> automatically repaint. 
 	 */
@@ -485,15 +523,17 @@ public class SimpleGraph extends JPanel {
 
 		//=================================================================================
 		// creating the coordinates 
-		g.setColor(Color.BLACK);
-		
-		//X axis
-		if(xCoordinateHeight>0 && xCoordinateHeight<height)
-			g.drawLine(0, xCoordinateHeight, width, xCoordinateHeight);
+		if(showAxis) {
+			g.setColor(Color.BLACK);
+			
+			//X axis
+			if(xCoordinateHeight>0 && xCoordinateHeight<height)
+				g.drawLine(0, xCoordinateHeight, width, xCoordinateHeight);
 
-		//Y axis
-		if(yCoordinateWidth>0 && yCoordinateWidth<width)
-			g.drawLine(yCoordinateWidth, 0, yCoordinateWidth, height);
+			//Y axis
+			if(yCoordinateWidth>0 && yCoordinateWidth<width)
+				g.drawLine(yCoordinateWidth, 0, yCoordinateWidth, height);
+		}
 		
 		if(showTicks){
 
