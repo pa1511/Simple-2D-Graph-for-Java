@@ -246,6 +246,7 @@ public class SimpleGraph extends JPanel {
 						
 						addPoint(startX, startY);
 						
+						repaint();
 						//TODO: allow subscription to this kind of event
 					}
 				}
