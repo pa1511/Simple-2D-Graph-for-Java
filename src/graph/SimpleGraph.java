@@ -93,6 +93,10 @@ public class SimpleGraph extends JPanel {
 	}
 	//
 	private boolean interactiveMode = false;
+	
+	private boolean canDrag = true;
+	
+	private boolean canZoomInOut = true;
 
 	/**
 	 * Creates a simple graphs where the step on each axis is 1
@@ -130,6 +134,36 @@ public class SimpleGraph extends JPanel {
 		repaint();
 	}
 	
+	/**
+	 * Indicate should the axis be show
+	 * @param showAxis
+	 */
+	public void setShowAxis(boolean showAxis) {
+		this.showAxis = showAxis;
+		repaint();
+	}
+	
+	/**
+	 * Indicate the activation of interactive mode
+	 * @param interactiveMode
+	 */
+	public void setInteractiveMode(boolean interactiveMode) {
+		this.interactiveMode = interactiveMode;
+	}
+	
+	/**
+	 * Indicate can the graph be draged
+	 */
+	public void setCanDrag(boolean canDrag) {
+		this.canDrag = canDrag;
+	}
+	
+	/**
+	 * Indicate can the graph be zoomed in/out
+	 */
+	public void setCanZoomInOut(boolean canZoomInOut) {
+		this.canZoomInOut = canZoomInOut;
+	}
 	
 	/**
 	 * 
@@ -175,7 +209,23 @@ public class SimpleGraph extends JPanel {
 				repaint();
 			}
 		}));
+		
+		JMenuItem canDragMenuItem = popupMenu.add(new JMenuItem(new AbstractAction("Can drag") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				canDrag = !canDrag;
+			}
+		}));
 
+		JMenuItem canZoomInOutMenuItem = popupMenu.add(new JMenuItem(new AbstractAction("Can zoom in/out") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				canZoomInOut = !canZoomInOut;
+			}
+		}));
+		
 		JMenuItem interactiveModeMenuItem = popupMenu.add(new JMenuItem(new AbstractAction("Enable adding points") {
 			
 			@Override
@@ -228,11 +278,15 @@ public class SimpleGraph extends JPanel {
 				showGridMenuItem.setIcon(showGrid ?  crossIcon : checkIcon);
 				showTicksMenuItem.setIcon(showTicks ? crossIcon : checkIcon);
 				showAxisMenuItem.setIcon(showAxis ? crossIcon : checkIcon );
+				canDragMenuItem.setIcon(canDrag ? crossIcon : checkIcon );
+				canZoomInOutMenuItem.setIcon(canZoomInOut ? crossIcon : checkIcon );
 				interactiveModeMenuItem.setIcon(interactiveMode ? crossIcon : checkIcon);
 				
 				showGridMenuItem.setText(showGrid ? "Hide grid" : "Show grid");
 				showTicksMenuItem.setText(showTicks ? "Hide ticks" : "Show ticks");
 				showAxisMenuItem.setText(showAxis ? "Hide Axis" : "Show axis" );
+				canDragMenuItem.setText(canDrag ? "Disable drag" : "Enable drag");
+				canZoomInOutMenuItem.setText(canZoomInOut ? "Disable zoom" : "Enable zoom");
 				interactiveModeMenuItem.setText(interactiveMode ? "Disable adding points" : "Enable adding points");
 			}
 			
@@ -286,38 +340,45 @@ public class SimpleGraph extends JPanel {
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if(SwingUtilities.isLeftMouseButton(e)){
-					int width = getWidth();
-					int height = getHeight();
-					
-					Point point = e.getPoint();
-					
-					startShiftX = point.getX()/width - shiftX;
-					startShiftY = 1.0-point.getY()/height - shiftY;
-
-					
-					repaint();
+				if(canDrag) {
+					if(SwingUtilities.isLeftMouseButton(e)){
+						int width = getWidth();
+						int height = getHeight();
+						
+						Point point = e.getPoint();
+						
+						startShiftX = point.getX()/width - shiftX;
+						startShiftY = 1.0-point.getY()/height - shiftY;
+	
+						
+						repaint();
+					}
 				}
 			}
 			
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if(SwingUtilities.isLeftMouseButton(e)){
-					
-					int width = getWidth();
-					int height = getHeight();
-					
-					Point point = e.getPoint();
-					
-					shiftX = point.getX()/width-startShiftX;
-					shiftY = 1.0-point.getY()/height-startShiftY;
-										
-					repaint();
+				if(canDrag) {
+					if(SwingUtilities.isLeftMouseButton(e)){
+						
+						int width = getWidth();
+						int height = getHeight();
+						
+						Point point = e.getPoint();
+						
+						shiftX = point.getX()/width-startShiftX;
+						shiftY = 1.0-point.getY()/height-startShiftY;
+											
+						repaint();
+					}
 				}
 			}
 			
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {				
+				if(!canZoomInOut)
+					return;
+				
 				int rotation = e.getWheelRotation();
 
 				Point point = e.getPoint();
@@ -346,9 +407,7 @@ public class SimpleGraph extends JPanel {
 		};
 		addMouseListener(mouseInputHandler);
 		addMouseMotionListener(mouseInputHandler);
-		addMouseWheelListener(mouseInputHandler);
-		
-		
+		addMouseWheelListener(mouseInputHandler);		
 	}
 
 	/**
